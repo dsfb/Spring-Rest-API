@@ -11,8 +11,8 @@ public class Employee {
 
     private @Id @GeneratedValue Long id;
     private String name;
-    private String role;
-
+    private String role; 
+    
     //
     public Employee() {}
 
@@ -20,6 +20,18 @@ public class Employee {
     public Employee(String name, String role) {
         this.name = name;
         this.role = role;
+    }
+
+    public boolean setComplete() {
+        if (name == null || name.isEmpty()) {
+            return false;
+        }
+
+        if (role == null || role.isEmpty()) {
+            return false;
+        }
+
+        return true;
     }
 
     public Long getId() {
@@ -70,4 +82,21 @@ public class Employee {
                 '}';
     }
 
+    public boolean checkComplete() {
+        return new EmployeeChecker().isComplete(this);
+    }
+    
+    public class EmployeeChecker {
+        public boolean isComplete(Employee emp) {
+            if (emp.name == null || emp.name.isEmpty()) {
+                return false;
+            }
+
+            if (emp.role == null || emp.role.isEmpty()) {
+                return false;
+            }
+
+            return true;
+        }
+    }
 }

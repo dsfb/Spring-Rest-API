@@ -1,5 +1,7 @@
 package com.example.payroll.demo.api;
 
+import com.example.payroll.demo.exception.EmployeeExistentException;
+import com.example.payroll.demo.exception.EmployeeIncompleteException;
 import com.example.payroll.demo.exception.EmployeeNotFoundException;
 import com.example.payroll.demo.model.Employee;
 import com.example.payroll.demo.repository.EmployeeRepository;
@@ -10,6 +12,7 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 @Api(value = "Employees API REST")
 @RestController
@@ -46,7 +49,15 @@ public class EmployeeController {
     )
     @PostMapping("/employees")
     Employee newEmployee(@RequestBody Employee newEmployee) {
-        return repository.save(newEmployee);
+        if (newEmployee.checkComplete()) {
+            if (repository.findByName(newEmployee.getName())) {
+                throw new EmployeeExistentException();
+            }
+
+            return repository.save(newEmployee);
+        } 
+
+        throw new EmployeeIncompleteException();
     }
 
     // itens individuais
@@ -62,6 +73,10 @@ public class EmployeeController {
     @ApiOperation("Altera informações de um employee específico")
     @PutMapping("/employees/{id}")
     Employee replaceEmployee(@RequestBody Employee newEmployee, @PathVariable Long id) {
+        if (!newEmployee.checkComplete()) {
+            throw new EmployeeIncompleteException();
+        }
+
         // caso encontre o id pega o valor de name e role e atualiza salvando os dados do emplooye,
         // senão ele cria um novo employee.
         return repository.findById(id).map(employee -> {
@@ -79,7 +94,11 @@ public class EmployeeController {
     @ApiOperation("Deleta um employee")
     @DeleteMapping("/employees/{id}")
     void deleteEmployee(@PathVariable Long id) {
-        repository.deleteById(id);
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+        } else {
+            throw new EmployeeNotFoundException(id);
+        }
     }
 
 }
