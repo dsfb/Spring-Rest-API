@@ -22,18 +22,6 @@ public class Employee {
         this.role = role;
     }
 
-    public boolean setComplete() {
-        if (name == null || name.isEmpty()) {
-            return false;
-        }
-
-        if (role == null || role.isEmpty()) {
-            return false;
-        }
-
-        return true;
-    }
-
     public Long getId() {
         return id;
     }
